@@ -63,7 +63,10 @@ app.post('/login', async (req, res) => {
 // INICIAR SERVIDOR
 // =======================
 const PORT = process.env.PORT || 3000;
-
+// Ruta principal (mensaje)
+app.get('/', (req, res) => {
+  res.send('API de Login funcionando correctamente');
+});
 app.listen(PORT, () => {
   console.log("Servidor corriendo en puerto " + PORT);
 });
