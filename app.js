@@ -1,4 +1,48 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+
+const app = express();
+app.use(express.json());
+
+let usuarios = [];
+
+// REGISTRO
+app.post('/registro', async (req, res) => {
+  const { usuario, contrasena } = req.body;
+
+  const hash = await bcrypt.hash(contrasena, 10);
+
+  usuarios.push({ usuario, contrasena: hash });
+
+  res.json({ mensaje: 'Registro exitoso' });
+});
+
+// LOGIN
+app.post('/login', async (req, res) => {
+  const { usuario, contrasena } = req.body;
+
+  const user = usuarios.find(u => u.usuario === usuario);
+
+  if (!user) {
+    return res.json({ mensaje: 'Error en la autenticación' });
+  }
+
+  const esValido = await bcrypt.compare(contrasena, user.contrasena);
+
+  if (esValido) {
+    res.json({ mensaje: 'Autenticación satisfactoria' });
+  } else {
+    res.json({ mensaje: 'Error en la autenticación' });
+  }
+});
+
+// SERVIDOR
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Servidor corriendo");
+});const 
+express = 
+require('express');
 const app = express();
 
 app.use(express.json());
