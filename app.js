@@ -1,32 +1,55 @@
+// Importar librerías necesarias
 const express = require('express');
 const bcrypt = require('bcrypt');
 
 const app = express();
+
+// Permitir recibir datos en formato JSON
 app.use(express.json());
 
+// Simulación de base de datos en memoria
 let usuarios = [];
 
-// REGISTRO
+// =======================
+// SERVICIO DE REGISTRO
+// =======================
 app.post('/registro', async (req, res) => {
   const { usuario, contrasena } = req.body;
 
+  // Validar datos
+  if (!usuario || !contrasena) {
+    return res.json({ mensaje: 'Campos vacíos' });
+  }
+
+  // Verificar si el usuario ya existe
+  const existe = usuarios.find(u => u.usuario === usuario);
+  if (existe) {
+    return res.json({ mensaje: 'Usuario ya existe' });
+  }
+
+  // Encriptar contraseña
   const hash = await bcrypt.hash(contrasena, 10);
 
+  // Guardar usuario
   usuarios.push({ usuario, contrasena: hash });
 
   res.json({ mensaje: 'Registro exitoso' });
 });
 
-// LOGIN
+// =======================
+// SERVICIO DE LOGIN
+// =======================
 app.post('/login', async (req, res) => {
   const { usuario, contrasena } = req.body;
 
+  // Buscar usuario
   const user = usuarios.find(u => u.usuario === usuario);
 
   if (!user) {
     return res.json({ mensaje: 'Error en la autenticación' });
   }
 
+  // Comparar contraseña
   const esValido = await bcrypt.compare(contrasena, user.contrasena);
 
   if (esValido) {
@@ -36,49 +59,11 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// SERVIDOR
+// =======================
+// INICIAR SERVIDOR
+// =======================
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log("Servidor corriendo");
-});const 
-express = 
-require('express');
-const app = express();
-
-app.use(express.json());
-
-let usuarios = [];
-
-app.post('/registro', (req, res) => {
-    const { usuario, contrasena } = req.body;
-
-    if (!usuario || !contrasena) {
-        return res.json({ mensaje: 'Campos vacíos' });
-    }
-
-    const existe = usuarios.find(u => u.usuario === usuario);
-
-    if (existe) {
-        return res.json({ mensaje: 'Usuario ya existe' });
-    }
-
-    usuarios.push({ usuario, contrasena });
-
-    res.json({ mensaje: 'Registro exitoso' });
-});
-
-app.post('/login', (req, res) => {
-    const { usuario, contrasena } = req.body;
-
-    const user = usuarios.find(u => u.usuario === usuario);
-
-    if (!user || user.contrasena !== contrasena) {
-        return res.json({ mensaje: 'Error en la autenticación' });
-    }
-
-    res.json({ mensaje: 'Autenticación satisfactoria' });
-});
-
-app.listen(3000, () => {
-    console.log('Servidor corriendo en http://localhost:3000');
+  console.log("Servidor corriendo en puerto " + PORT);
 });
